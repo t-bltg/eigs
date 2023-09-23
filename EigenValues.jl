@@ -13,7 +13,8 @@ module EigenValues
   using KrylovKit
   using Arpack
 
-  main(slv = 1, plt = 1) = begin
+  main(slv=1, plt=1, pow=.7) = begin
+    @assert 0 < pow ≤ 1
     I = readdlm("coo_rows.txt", Int)[:, 1]
     J = readdlm("coo_cols.txt", Int)[:, 1]
     V = readdlm("coo_vals.txt")[:, 1]
@@ -26,6 +27,7 @@ module EigenValues
       :KrylovKit,
       :ArnoldiMethod,
       :IterativeSolvers,
+      :NonlinearEigenproblems,
     )[slv]
     plot = (
       :UnicodePlots,
@@ -37,7 +39,7 @@ module EigenValues
 
     @show isposdef(A) ishermitian(A) issymmetric(A)
 
-    nev = floor(Int, size(A, 1)^(0.75))
+    nev = floor(Int, size(A, 1)^pow)
     println("computing $nev eigenvalues using $solver")
 
     # TODO: wrap [FEAST](feast-solver.org) ?
@@ -51,14 +53,16 @@ module EigenValues
       dec.eigenvalues
     elseif solver ≡ :IterativeSolvers
       lobpcg(A, true, nev).λ
+    elseif solver ≡ :NonlinearEigenproblems
+      eig_solve(DefaultEigSolver(A); nev) |> first  # dispatches to :ArnoldiMethod under the hood
     else
       @error solver
     end
 
-    if plot ≡ :UnicodePlots
-      fig = scatterplot(real(λ), imag(λ))
+    fig = if plot ≡ :UnicodePlots
+      scatterplot(real(λ), imag(λ); xlabel="Re", ylabel="Im")
     elseif plot ≡ :CairoMakie
-      fig, ax, plot = scatter(real(λ), imag(λ))
+      scatter(real(λ), imag(λ); axis=(; xlabel="Re", ylabel="Im")) |> first
     end
     display(fig)
     return
