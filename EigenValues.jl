@@ -13,6 +13,8 @@ module EigenValues
   using KrylovKit
   using Arpack
 
+  export main
+
   main(slv=1, plt=1, pow=.7) = begin
     @assert 0 < pow ≤ 1
     I = readdlm("coo_rows.txt", Int)[:, 1]
