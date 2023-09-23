@@ -37,11 +37,7 @@ module EigenValues
 
     @show isposdef(A) ishermitian(A) issymmetric(A)
 
-    nev = if true
-      size(A, 1)  # all eigenvalues
-    else
-      floor(Int, √(size(A, 1)))
-    end
+    nev = floor(Int, size(A, 1)^(0.75))
     println("computing $nev eigenvalues using $solver")
 
     # TODO: wrap [FEAST](feast-solver.org) ?
