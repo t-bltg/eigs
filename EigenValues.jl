@@ -15,11 +15,11 @@ module EigenValues
 
   export main
 
-  main(slv=1, plt=1, pow=.7) = begin
+  main(slv=1, plt=1, pow=.7; rows="coo_rows.txt", cols="coo_cols.txt", vals="coo_vals.txt") = begin
     @assert 0 < pow ≤ 1
-    I = readdlm("coo_rows.txt", Int)[:, 1]
-    J = readdlm("coo_cols.txt", Int)[:, 1]
-    V = readdlm("coo_vals.txt")[:, 1]
+    I = readdlm(rows, Int)[:, 1]
+    J = readdlm(cols, Int)[:, 1]
+    V = readdlm(vals, Float64)[:, 1]
 
     # @show typeof(I) typeof(J) typeof(V)
     # @show I J V
@@ -53,7 +53,7 @@ module EigenValues
     elseif solver ≡ :ArnoldiMethod
       dec, = partialschur(A; nev)
       dec.eigenvalues
-    elseif solver ≡ :IterativeSolvers
+    elseif solver ≡ :IterativeSolvers  # fails ??
       lobpcg(A, true, nev).λ
     elseif solver ≡ :NonlinearEigenproblems
       eig_solve(DefaultEigSolver(A); nev) |> first  # dispatches to :ArnoldiMethod under the hood
