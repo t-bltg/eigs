@@ -15,8 +15,8 @@ module EigenValues
 
   export main
 
-  main(slv=1, plt=1, pow=.7; rows="coo_rows.txt", cols="coo_cols.txt", vals="coo_vals.txt") = begin
-    @assert 0 < pow ≤ 1
+  main(slv=3, plt=1, pct=.9; rows="coo_rows.txt", cols="coo_cols.txt", vals="coo_vals.txt") = begin
+    @assert 0 < pct ≤ 1
     I = readdlm(rows, Int)[:, 1]
     J = readdlm(cols, Int)[:, 1]
     V = readdlm(vals, Float64)[:, 1]
@@ -41,7 +41,8 @@ module EigenValues
 
     @show isposdef(A) ishermitian(A) issymmetric(A)
 
-    nev = floor(Int, size(A, 1)^pow)
+    # nev = floor(Int, size(A, 1)^pow)
+    nev = floor(Int, pct * size(A, 1))
     println("computing $nev eigenvalues using $solver")
 
     # TODO: wrap [FEAST](feast-solver.org) ?
@@ -71,3 +72,4 @@ module EigenValues
   end
 
 end
+
